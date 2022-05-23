@@ -6,34 +6,6 @@ from sklearn.base import BaseEstimator, TransformerMixin
 import numpy as np
 
 
-class MainTransformer(BaseEstimator, TransformerMixin):
-
-    def __init__(self):
-        self.mgt = MapGridTransformer(5, 5)
-        self.tht = TraficHoursTransformer()
-
-    def fit(self, df):
-        self.mgt.fit(df)
-        self.tht.fit(df)
-
-    def transform(self, df):
-        df_temp = df.copy()
-        df_temp['month'] = df_temp['pickup_datetime'].dt.month
-        df_temp['day_of_week'] = df_temp['pickup_datetime'].dt.day_of_week
-        df_temp['hour'] = df_temp['pickup_datetime'].dt.hour
-
-
-
-        df_temp = self.mgt.transform(df_temp)
-        df_temp = self.tht.transform(df_temp)
-
-        df_temp.drop(
-            columns=['id', 'vendor_id', 'pickup_datetime', 'haversine'],
-            inplace=True)
-
-        return df_temp
-
-
 class TraficHoursTransformer(BaseEstimator, TransformerMixin):
 
     def __init__(self):
@@ -61,7 +33,7 @@ class TraficHoursTransformer(BaseEstimator, TransformerMixin):
                 lambda x: (x.day_of_week, x.hour), axis=1).values
 
         gb_no_traffic = pd.DataFrame(
-            df.groupby(by=['day_of_week', 'hour'])['av_speed_loglog'].median())
+            df_temp.groupby(by=['day_of_week', 'hour'])['av_speed_loglog'].median())
 
         gb_no_traffic['av_speed_loglog'] = (
             gb_no_traffic['av_speed_loglog'] >
@@ -72,6 +44,7 @@ class TraficHoursTransformer(BaseEstimator, TransformerMixin):
         self.no_traffic_d_h = gb_no_traffic[
             gb_no_traffic['av_speed_loglog']].apply(
                 lambda x: (x.day_of_week, x.hour), axis=1).values
+        return self
 
     def transform(self, df):
         return df.assign(
@@ -124,6 +97,8 @@ class MapGridTransformer(BaseEstimator, TransformerMixin):
             xi = ((xn - x0) / self.ver_bins) * i + x0
             self.dropoff_lat.append(xi)
         self.dropoff_lat.append(xn)
+
+        return self
 
     def __subtransform(self, lng, lat, long_bounds, lat_bounds):
         if (lng < long_bounds[0] or lat < lat_bounds[0] or

@@ -3,3 +3,5 @@
 *.pdf
 *.zip
 /2/nyc-taxi-trip-duration
+/2/__pycache__
+/2/make_submission.ipynb
