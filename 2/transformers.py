@@ -129,7 +129,3 @@ class MapGridTransformer(BaseEstimator, TransformerMixin):
                     x.dropoff_longitude, x.dropoff_latitude,
                     self.dropoff_long, self.dropoff_lat),
                 axis=1))
-
-    # def fit_transform(self, df, hor_bins, ver_bins):
-    #     self.fit(df, hor_bins, ver_bins)
-    #     return self.transform(df)
