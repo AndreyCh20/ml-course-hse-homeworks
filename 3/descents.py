@@ -102,12 +102,14 @@ class VanillaGradientDescent(BaseDescent):
         # TODO: implement updating weights function
         # raise NotImplementedError('VanillaGradientDescent update_weights function not implemented')
         
-        return - (self.lr() * gradient)
+        diff = - self.lr() * gradient
+        self.w = self.w + diff
+        return diff 
 
     def calc_gradient(self, x: np.ndarray, y: np.ndarray) -> np.ndarray:
         # TODO: implement calculating gradient function
         # raise NotImplementedError('VanillaGradientDescent calc_gradient function not implemented')
-        return 2 * (x.T @ ((x @ self.w) - y))
+        return 2 * (x.T @ ((x @ self.w) - y)) / y.shape[0]
 
 class StochasticDescent(VanillaGradientDescent):
     """
